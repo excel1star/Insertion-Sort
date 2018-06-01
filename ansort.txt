@@ -1,0 +1,832 @@
+sub  ansort(n,a,iperm)
+Dim a(n) as double
+Dim iperm(n)
+c----- order set of real*8 words by permutation index
+c----- written by al vachris.. adapted from a routine
+c----- order written by frank nolan
+if(n = 0) then goto L900
+c----- initalize to identity permutation
+k = 1
+mm =iabs(n)
+for i=1 to mm
+L10:
+    iperm(i)=i
+next i
+ione=1
+c-----  order from lo-to-hi
+L100:
+l = k
+k = k + 1
+L110:
+index=iperm(i)
+    c-----  test value against ordered list
+    if(a(k) < a(index)) then goto L130
+L120:
+    continue
+    goto L150
+L130:
+    j=k
+    c-----  shift ordered string to make room for new value
+    for m=i to l
+        iperm(j)=iperm(j-1)
+L140:
+        j=j-1
+    next m
+    c-----  insert value
+    iperm(i)=k
+L150:
+    if(k >=mm) then goto L160
+    ione=1
+loop
+c----- begin test from the point of insertion
+if(a(k+1) >=a(k)) then ione=i
+goto L100
+L160:
+if(n > 0) then goto L900
+c----- reverse permutation for hi-to-lo order
+ione=mm/2
+j=mm+1
+for i=1 to ione
+    j=j-1
+    itemp=iperm(j)
+    iperm(j)=iperm(i)
+L170:
+    iperm(i)=itemp
+next i
+L900:
+exit sub
+exit sub
+
+end sub
+sub  border(n,a,iperm)
+c----- order set of numbers by permutation index
+c----- written by al vachris.. adapted from a routine
+c----- order written by frank nolan
+c-----  for aorder2  Dim of iperm must be at least twice dimension
+c-----  of a
+Dim iperm(n),a(n)
+Dim ltest as boolean
+if(n = 0) then goto L900
+c----- initialization
+nlast=iabs(n)
+ione=nlast+1
+itwo=ione
+new=1
+anew=a(1)
+iperm(ione)=1
+inset=ione
+alow=anew
+ahigh=anew
+c-----  major loop for lo-to-hi sort permutation
+L110:
+if(new >=nlast) then goto L410
+ainset=anew
+new=new+1
+anew=a(new)
+c-----  check low end for tack on
+if(anew >=alow) then goto L120
+ione=ione-1
+iperm(ione)=new
+inset=ione
+alow=anew
+goto L110
+c-----  check high end for tack on
+L120:
+if(anew < ahigh) then goto L210
+itwo=itwo+1
+iperm(itwo)=new
+inset=itwo
+ahigh=anew
+goto L110
+c----- initialize search based on last insertion
+L210:
+jlow=ione
+jhigh=inset
+if(anew < ainset) then goto L220
+jlow=inset
+jhigh=itwo
+c----- binary search loop to localize insertion point
+L220:
+if(jhigh-jlow < 10) then goto L310
+inset=(jlow+jhigh)/2
+index=iperm(inset)
+ltest=a(index) > anew
+if(ltest) then high=inset
+if( not ltest) then low=inset
+goto L220
+c----- sequential search loop to find insertion point
+L310:
+for inset=jlow to gh
+    index=iperm(inset)
+    if(anew < a(index)) then goto L330
+L320:
+    continue
+next inset
+inset=jhigh
+c-----  shift ordered string over one to make room for new value
+c-----  look for shorter shift
+L330:
+jlow=inset-ione
+jhigh=itwo-inset
+if(jlow < jhigh) then goto L350
+c-----  code to shift up -- insert is closer to itwo
+jhigh=itwo+1
+for itemp=inset to 
+    jlow=jhigh-1
+    iperm(jhigh)=iperm(jlow)
+L340:
+    jhigh=jlow
+next itemp
+itwo=itwo+1
+goto L370
+c-----  code to shift down -- insert is closer to ione
+L350:
+inset=inset-1
+jlow=ione-1
+for itemp=ione to et
+    jhigh=jlow+1
+    iperm(jlow)=iperm(jhigh)
+L360:
+    jlow=jhigh
+next itemp
+ione=ione-1
+c-----  insert new value
+L370:
+iperm(inset)=new
+goto L110
+c-----  shift down to exit sub iperm
+L410:
+jlow=1
+for itemp=ione to o
+    iperm(jlow)=iperm(itemp)
+L420:
+    jlow=jlow+1
+next itemp
+if(n > 0) then goto L900
+c----- reverse permutation for hi-to-lo order
+inset=nlast/2
+jhigh=nlast
+for jlow=1 to inset
+    itemp=iperm(jhigh)
+    iperm(jhigh)=iperm(jlow)
+    iperm(jlow)=itemp
+L430:
+    jhigh=jhigh-1
+next jlow
+L900:
+exit sub
+exit sub
+
+end sub
+
+sub  irnkit(mode,n,ia,iperm,irank)
+Dim ia(1),iperm(1),irank(1)
+c-----   initialization
+nabs=iabs(n)
+if(mode > -1) then call iorder(n,ia,iperm)
+for i=1 to nabs
+    j=iperm(i)
+L110:
+    irank(j)=i
+next i
+exit sub
+exit sub
+
+end sub
+sub  nstord(mode,n,a,iperm,atemp,itemp)
+Dim a(n),atemp(n),iperm(n),itemp(n)
+nabs=iabs(n)
+if(n = 0) then goto L900
+if(mode > 0) then goto L100
+call aorder(n,a,iperm)
+goto L900
+L100:
+for i=1 to nabs
+    j=iperm(i)
+    itemp(i)=j
+L110:
+    atemp(i)=a(j)
+next i
+next i
+call aorder(n,atemp,iperm)
+for i=1 to nabs
+    j=iperm(i)
+L120:
+    iperm(i)=itemp(j)
+next i
+L900:
+exit sub
+exit sub
+
+end sub
+sub  ijen (a,v,b,d,t,di,u,set,alpha,mid,ll,nr,nc,mxiter,ddif
+1l,nloop,lt)
+Dim a(mid,3), v(mid,nc), b(1), d(nc), set(nc), t(nr)
+Dim di(nr), u(mid,ll)
+c     Dim b to (nr*(nr+1))/2
+c     call displa(a,6,1ha,1,2,nr,3,mid)
+call bfacs (a,a(1,2),a(1,3),alpha,mid,ll,nr,di,u)
+lo2=ll/2
+gj=16.
+itime=0
+nco=-nc
+iend=2
+c^^*        iteration loop
+L5:
+itime=itime+1
+c* next... set b= vt * a v
+diffo=0.0
+ij=0
+for j=1 to nc
+    vs=0.0
+    rq=0.0
+    for i=1 to nr
+        dsum=a(i,1)*v(i,j)
+        if (alpha = 0.0 or i > ll) then goto L10
+        if (i <=lo2) then dsum=dsum+a(nr-i+1,3)*v(ll-i+1,j)
+        if (i > lo2) then dsum=dsum+a(nr-ll+i,3)*v(ll-i+1,j)
+L10:
+        if (i < nr) then dsum=dsum+a(i,2)*v(i+1,j)
+    next i
+    if (i > 1) then dsum=dsum+a(i-1,2)*v(i-1,j)
+    if (i > ll) then dsum=dsum+a(i-ll,3)*v(i-ll,j)
+    if (i <=nr-ll) then dsum=dsum+a(i,3)*v(i+ll,j)
+    rq=rq+v(i,j)*dsum
+    vs=vs+dsum^2
+L15:
+    t(i)=dsum
+next i
+d(j)=rq
+ij=ij+1
+b(ij)=rq
+vs= sqr (vs)
+rq=vs-abs(rq)
+dsum=abs(rq)
+if (vs <> 0.) then dsum=dsum/vs
+rq=sign(vs* sqr (abs(dsum*(2.0-dsum))),rq)
+if (abs(rq) > diffo) then diffo=abs(rq)
+if (j = nc) then goto L25
+jp1=j+1
+for k=jp1 to 
+    ij=ij+1
+    cccc  dsum= 0.0
+    ccc   do 145 i=1,nr
+    cc145 dsum= dsum + t(i) *      v(i,k)
+L20:
+    b(ij)=scapr2(v(1,k),t,nr,1,1)
+next k
+L25:
+set(j)=rq
+next j
+c ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^*
+if (lt > 0) then call displa (d,lt,18hrayleigh quotients,18,1,nc,1,1)
+open report.txt for append as #1
+if (lt > 0) then write #1, diffo
+c ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^*
+if (iend = 1) then goto L35
+L30:
+call bsols (v,mid,ll,nc,nr,di,u)
+c^^*        tests for convergence
+if (diffo < ddifl) then iend=1
+if (itime = mxiter) then iend=1
+goto L40
+c^^*        output parameters
+L35:
+if (lt > 0) then write #1, itime,diffo
+if (lt > 0) then call displa (set,lt,21habsolute error bounds,21,1,nc,
+11,1)
+if (lt > 0) then call displa (b,lt,6hvt*a*v,6,3,-nc,1,1)
+c ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^*
+if (itime >=mxiter) then write #1,
+close #1:exit sub
+c^^*        continue with the iteration
+'c* set b to correction transformation
+L40:
+ij=0
+for j=1 to nc
+    for i=j to nc
+        ij=ij+1
+        if (j = i) then goto L45
+        if (b(ij) = 0.) then goto L45
+        qr=d(j)-d(i)
+        b(ij)=2.*b(ij)/(qr+sign( sqr (qr^2+gj*b(ij)^2),qr))
+L45:
+        continue
+    next i
+next j
+c     call displa(b,6,1hb,1,3,-nc,1,1)
+c* set v= v * b
+for i=1 to nr
+    kj=0
+    for j=1 to nc
+L50:
+        t(j)=v(i,j)
+    next j
+    for j=1 to nc
+        dsum=t(j)
+        if (j = 1) then goto L60
+        jk=j
+        jki=nc
+        jm1=j-1
+        for k=1 to jm1
+            dsum=dsum-t(k)*b(jk)
+            jki=jki-1
+L55:
+            jk=jk+jki
+        next k
+L60:
+        if (j = nc) then goto L70
+        jp1=j+1
+        kj=kj+1
+        for k=jp1 to 
+            kj=kj+1
+L65:
+            dsum=dsum+t(k)*b(kj)
+        next k
+L70:
+        v(i,j)=dsum
+    next j
+next i
+c* orthonormalize v
+call aorder (d,nco,set)
+call ornml (v,set,mid,nr,nc)
+c     if(lt > 0)call displa(v,lt,3hv-c,3,2,nr,nc,mid)
+goto L5
+L75:
+'format (25h0maximum absolute error =,g11.3)
+L80:
+'format (17h0iteration number,i3,27h  maximum absolute error = ,g11
+1.3)
+L85:
+'format (20x,15hfailure in ijen)
+close #1:exit sub
+close #1
+sub  bfacs (a,b,e,alpha,mid,l,n,d,u)
+Dim a(n), b(n), e(n), d(n), u(mid,l)
+if (l = 1) then goto L10
+j=l+1
+for k=2 to l
+    j=j-1
+    i=n
+    for m=k to l
+        i=i-1
+L5:
+        u(i,j)=0.
+    next m
+next k
+L10:
+ni=n
+next i
+km=1
+ni=ni-1
+lim=min0(ni,l)+1
+lj=l+1
+for jp=1 to lim
+    j=jp-1
+    lj=lj-1
+    m=min0(lj,i-1)
+    x=0.00
+    if (j = 0) then x=-a(i)
+    if (j = l) then x=-e(i)
+    if (j = 1) then x=-b(i)
+    if (alpha <> 0.0 and i <=l/2 and j = l-2*i+1) then x=-e(n-i+1)
+    c     if(m = 0) goto L20
+    c     ik= i
+    c     jk= j
+    c     kb= km
+    c     do 10 k=1,m
+    c     ik= ik - 1
+    c     jk= jk + 1
+    c     x= x +      u(n,kb)  *      u(ik,jk)
+    c  10 kb= kb - 1
+    c  20 y=      x
+    y=scapr2(u(n,km),u(i-1,j+1),m,-mid,mid-1)+x
+    if(j > 0) then goto L15
+    if(y <> 0.) then d(i)=-1./y
+    if(y = 0.) then d(i)=0.
+L15:
+    if (j > 0) then u(i,j)=y
+next jp
+next i
+if (i = 1) then goto L25
+kf=max0(i-l-1,0)
+km=min0(i-1,l)
+j=km
+kf=kf+1
+u(kf,j)=u(n,k)
+L20:
+j=j-1
+next k
+if (i = n) then goto L35
+L25:
+kf=max0(i-l,0)
+next j
+km=min0(i,l)
+j=km
+kf=kf+1
+u(n,k)=u(kf,j)*d(kf)
+L30:
+j=j-1
+L35:
+exit sub
+exit sub
+sub  bsols (y,mid,l,m,n,d,u)
+Dim y(mid,m), d(n), u(mid,l)
+for i=2 to n
+    lim=min0(l,i-1)
+    c     s= y(i,j)
+    c     ik= lim + 1
+    c     ki= i - ik
+    c     do 20 k=1,lim
+    c     ik= ik - 1
+    c     ki= ki + 1
+    c  20 s= s +      u(ki,ik)  *      y(ki,j)
+    c  30 y(i,j)= s
+L5:
+    y(i,j)=scapr2(u(i-lim,lim),y(i-lim,j),lim,1-mid,1)+y(i,j)
+next i
+next m
+next k
+i=n
+y(i,j)=y(i,j)*d(i)
+i=i-1
+lim=min0(l,ik-1)
+c     s= y(i,j) * d(i)
+c     ki= i
+c     do 40 k=1,lim
+c     ki= ki + 1
+c  40 s= s +      u(i,k)  *      y(ki,j)
+c  50 y(i,j)= s
+L10:
+y(i,j)=scapr2(u(i,1),y(i+1,j),lim,mid,1)+y(i,j)*d(i)
+next i
+exit sub
+exit sub
+sub  ornml (y,l,mid,n,m)
+Dim y(mid,m), l(m)
+if (i = 1) then goto L10
+lllj=l(j)
+llllli=l(i-1)
+a=scapr2(y(1,lllj),y(1,llllli),n,1,1)
+for ii=1 to n
+    lllj=l(j)
+    llllli=l(i-1)
+L5:
+    y(ii,lllj)=y(ii,lllj)-a*y(ii,llllli)
+next ii
+next i
+next m
+next k
+L10:
+llli=l(i)
+next i
+a=1./ sqr (scapr2(y(1,llli),y(1,llli),n,1,1))
+llli=l(i)
+L15:
+y(ii,llli)=y(ii,llli)*a
+next jp
+next i
+exit sub
+exit sub
+sub  rvordr (r,v,k,l,n,mm,mid)
+Dim r(mm), v(mid,mm), k(mm), l(mm)
+call aorder (r,mm,l)
+m=iabs(mm)
+lllj=l(j)
+L5:
+k(lllj)=j
+next ii
+next i
+next m
+next k
+if (l(j) = j) then goto L15
+t=r(j)
+lllj=l(j)
+r(j)=r(lllj)
+r(lllj)=t
+t=v(i,j)
+v(i,j)=v(i,lllj)
+L10:
+v(i,lllj)=t
+next i
+k(lllj)=k(j)
+kkkj=k(j)
+l(kkkj)=l(j)
+L15:
+continue
+next jp
+next i
+exit sub
+exit sub
+sub  aorder (a,n,iperm)
+Dim a(1), iperm(1)
+if (n = 0) then goto L45
+k=1
+m1=iabs(n)
+L5:
+iperm(i)=i
+next ii
+next i
+next m
+next k
+ione=1
+L10:
+l=k
+next i
+k=k+1
+indi=iperm(i)
+if (a(k) < a(indi)) then goto L20
+L15:
+continue
+next jp
+next i
+goto L30
+L20:
+j=k
+next k
+iperm(j)=iperm(j-1)
+L25:
+j=j-1
+next j
+iperm(i)=k
+L30:
+if (k >=m1) then goto L35
+ione=1
+if (a(k+1) >=a(k)) then ione=i
+goto L10
+L35:
+if (n > 0) then goto L45
+ione=m1/2
+j=m1+1
+j=j-1
+itemp=iperm(j)
+iperm(j)=iperm(i)
+L40:
+iperm(i)=itemp
+L45:
+exit sub
+next i
+next j
+exit sub
+sub  displa (x,nfile,title,kar,kind,nrows,ncols,mid)
+c author--m.j.rossi gac-35-395-x3671
+Dim title(1) as integer
+Dim  ip(10) as integer
+Dim x(1)
+data i1/1/
+c     len=(kar-1)/10+1
+len=(kar-1)/ 4+1
+open report.txt for append as #1
+write #1, (title(i),i=1,len)
+mrows=iabs(nrows)
+if (kind = 3 and nrows < 0) then call switch (x,nrows)
+if (kind <> 2) then n=mrows
+if (kind = 2) then n=ncols
+k=(n+9)/10
+l=-9
+m=0
+l=l+10
+m=m+10
+if (j = k) then m=n
+i=0
+i=i+1
+L5:
+ip(i)=ij
+next ii
+next i
+next m
+next k
+mm=m-l+1
+write #1, (ip(i),i=1,mm)
+goto L(10,15,35), kind
+L10:
+write #1, i1,(x(i),i=l,m)
+next i
+goto L45
+L15:
+if (nrows < 0) then goto L25
+next jp
+next i
+ijdone=(l-1)*mid
+ijend=mid*m
+ijbeg=i+ijdone
+L20:
+write #1, i,(x(ij),ij=ijbeg,ijend,mid)
+next k
+goto L45
+L25:
+ijb=l-mid
+next j
+ije=m-mid
+ijb=ijb+mid
+ije=ije+mid
+L30:
+write #1, i,(x(ij),ij=ijb,ije)
+goto L45
+L35:
+ijl=(l*(l+1))/2
+ijh=ijl+min0(i,m)-l
+write #1, i,(x(ij),ij=ijl,ijh)
+L40:
+ijl=ijl+i
+L45:
+continue
+next i
+next j
+if (kind = 3 and nrows < 0) then call switch (x,mrows)
+close #1:exit sub
+'c50   format (1h0,1x,10a10)
+L50:
+'format (1h0,1x,25a4 )
+L55:
+'format (10h row / col,10(4x,i3,4x))
+L60:
+'format (1x,i3,(7x,10e11.3))
+close #1:exit sub
+close #1
+sub  lusol (lu,y,m,mid,loc)
+c author--f.j.nolan gds
+Dim lu(1) as double
+Dim y(1) as double
+Dim loc(2,1) as double
+equivalence (el,l)
+mid1=-(mid+1)
+c   forward solution  (with interchanges)
+el=loc(2,i)
+s=y(l)
+y(l)=y(i)
+L5:
+y(i)=scapr2(lu(i),y,i-1,mid,1)+s
+next ii
+next i
+next m
+next k
+c   back solution
+k=m
+kk1=-m*mid1
+L10:
+h=scapr2(lu(kk1),y(k+1),m-k,mid,1)-y(k)
+next i
+kk1=kk1+mid1
+y(k)=-h/lu(kk1+1)
+k=k-1
+if (k) then 15,15,10
+L15:
+exit sub
+next jp
+next i
+exit sub
+function rdet (a,m,mid,ent,nix)
+c author--f.j.nolan gds
+c  triangular decomposition with optional determinant calculation.
+Dim a(1), ent(2,1)
+common /detail/ delta
+equivalence (l1,el)
+cap(h)=abs(h)
+n=iabs(m)
+if (m) then 5,10,10
+L5:
+d=0.
+next ii
+next i
+next m
+next k
+goto L15
+L10:
+d=1.
+next i
+L15:
+eps=delta
+next jp
+next i
+if (eps < 0. or eps > 1.e-5) then eps=3.e-7
+kk=1
+kb=1
+nk=n
+last=n*mid
+g=0.
+L20:
+g=amax1(g,cap(a(kj)))
+next k
+if (g-1.e-70) then 120,120,25
+L25:
+ent(1,k1)=1./g
+next j
+c   set g to max. elt. of (implicitly) scaled original column k.
+g=0.
+i=1
+g=amax1(g,ent(1,i)*cap(a(ik)))
+L30:
+i=i+1
+tol=g*eps
+g=0.
+i1=1
+j=i1-k1
+if (j) then 35,35,40
+L35:
+l=i1-1
+L40:
+a(ik)=scapr2(a(i1),a(kb),l,mid,1)+a(ik)
+if (j) then 55,45,45
+L45:
+p=cap(a(ik))*ent(1,i1)
+next i
+next j
+if (p-g) then 55,55,50
+L50:
+g=p
+next j
+l1=i1
+L55:
+i1=i1+1
+next k
+if (g-tol) then 120,120,60
+L60:
+g=ent(1,l1)
+ent(1,l1)=ent(1,k1)
+ent(1,k1)=g
+ent(2,k1)=el
+if (l1-k1) then 75,75,65
+L65:
+lj=l1
+next k
+h=a(kj)
+a(kj)=a(lj)
+a(lj)=h
+L70:
+lj=lj+mid
+next j
+next i
+d=-d
+L75:
+kk1=kk+1
+if (kk1-nk) then 80,80,90
+L80:
+h=-a(kk)
+L85:
+a(ik)=a(ik)/h
+L90:
+kb=kb+mid
+kk=kb+k1
+nk=nk+mid
+L95:
+continue
+if (d) then 100,110,100
+L100:
+h=d
+l1=mid+1
+L105:
+h=h*a(kk)
+rdet=h
+L110:
+nix=0
+next i
+next i
+L115:
+rdet=
+end function
+L120:
+nix=-k1
+next i
+rdet=0.
+goto L115
+end function
+sub  rimeqf (a,y,it,m,n,mid,key,nix)
+c author--francis j. nolan-gds-11/22/70
+Dim a(1) as double
+Dim  y(1) as double
+Dim  it(2,1) as double
+common /detail/ eps
+if (key > 0) then goto L5
+if (key = 0) then eps=1.e-6
+t=rdet(a,-m,mid,it,nix)
+if (nix <> 0) then exit sub
+L5:
+mn=mid*n
+next ii
+next i
+next m
+next k
+L10:
+call lusol (a,y(kb),m,mid,it)
+next i
+exit sub
+exit sub
+sub  ovly3
+c     overlay  (ocape,3,0)
+c     subroutine mout
+common /arrays/ mwords,s(1)
+common /p/ nij,tij,nip,alph,jgeo,nit,tolf,toli,mon,lte,nitdi,tole,
+1tolff,tolth,eps1,eps2,tbg1,tbg2,delx(100),llll,ar,es,nsides,theta,
+2eminf,gam,xsize,ysize,jsides
+common /pdoblk/ l5,l6,l7,l9,t0,k,m
+common /poblk/ lz,lv,m1
+call out (jsides,m,s(l9),delx,ar,es,theta,alph,eminf,gam,xsize,ysi
+1ze,t0,eps1,eps2,tbg1,tbg2,jgeo,s(lv),s(l5),s(l7),s(l6),s(lz),s(m1)
+2,k)
+c     call size4
+c     exit sub
+exit sub
+exit sub
+
+end sub

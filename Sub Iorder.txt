@@ -1,0 +1,85 @@
+Sub Iorder(ByRef Nvals As Integer, ByRef Ivals() As Integer, ByRef Iperm() As Integer)
+'=====================================
+'Order Set Of Integers Returns Permutation Index
+'-----------------------------------------'
+    Dim Nnew As Integer
+    Dim Nlast As Integer
+    Dim Nnow As Integer
+    Dim Ninsert As Integer
+    Dim Nlook As Integer
+    Dim Nhigh As Integer
+    Dim Nlow As Integer
+    Dim Nhalf As Integer
+    Dim Nshift As Integer
+    Dim Ivalnew As Integer
+    Dim Ivalinsert As Integer
+    Dim Nindex As Integer
+    Dim Ntemp As Integer
+'-----------------------------------------'
+      If Nvals = 0 Then GoTo 900 ' Nothing To Do
+'-----------------------------------------'
+'If Nvals < 0 Then A Hi-To-Lo Sort Is To Be Generated From The Lo-To-Hi Sort
+'-----------------------------------------'
+      Nlast = Nvals
+      If Nvals < 0 Then Nlast = -Nvals
+'-----------------------------------------'
+'Code Is Written To Generate An Ordered List From Lo-To-Hi
+'Results With Be Flipped To Create A Hi-To-Lo Sort When Required
+'-----------------------------------------'
+      Nnew = 1
+      Ivalnew = Ivals(1)
+      Iperm(1) = 1
+      Ninsert = 1
+'-----------------------------------------'
+110:  If Nnew >= Nlast Then GoTo 210 'Done With Scan
+'-----------------------------------------'
+      Nnow = Nnew
+      Ivalinsert = Ivalnew
+      Nnew = Nnew + 1
+      Ivalnew = Ivals(Nnew)
+      Iperm(Nnew) = Nnew
+'-----------------------------------------'
+' Test New Value Against The Current Ordered List
+' If New Value Is Larger Than Previous Insert Value Then Begin Test From The Point Of Insetion - Ninsert
+'-----------------------------------------'
+      Nlook = 1
+      If Ivalnew >= Ivalinsert Then Nlook = Ninsert
+'-----------------------------------------'
+      For Ninsert = Nlook To Nnow
+        Nindex = Iperm(Ninsert)
+        If Ivalnew < Ivals(Nindex) Then GoTo 130
+      Next Ninsert
+'-----------------------------------------'
+'  New Value Belongs At End Of Ordered List
+'-----------------------------------------'
+      Ninsert = Nnow + 1
+      GoTo 110 'Continue With The Primary Scan
+'-----------------------------------------'
+'  Shift Ordered List Down One Slot To Make Room For New Value
+'-----------------------------------------'
+130:   Nhigh = Nnew
+        For Nshift = Ninsert To Nnow
+            Nlow = Nhigh - 1
+            Iperm(Nhigh) = Iperm(Nlow)
+            Nhigh = Nlow
+        Next Nshift
+'-----------------------------------------'
+      Iperm(Ninsert) = Nnew '  Inset New Value
+      GoTo 110 'Continue With The Primary Scan
+'-----------------------------------------'
+210:   If Nvals > 0 Then GoTo 900 'All Done With Lo-To-Hi Sort
+'-----------------------------------------'
+'Finish Up - Flip Permutation To Create Hi-To-Lo Sort
+'-----------------------------------------'
+      Nhalf = Nlast / 2
+      Nhigh = Nlast
+'-----------------------------------------'
+      For Nlow = 1 To Nhalf
+        Ntemp = Iperm(Nhigh)
+        Iperm(Nhigh) = Iperm(Nlow)
+        Iperm(Nlow) = Ntemp
+        Nhigh = Nhigh - 1
+      Next Nlow
+'-----------------------------------------'
+900   Exit Sub
+      End Sub
